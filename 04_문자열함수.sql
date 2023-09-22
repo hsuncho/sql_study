@@ -35,6 +35,7 @@ SELECT
 FROM employees;
 
 -- substr(자를 문자열, 시작 인덱스, 길이), concat(문자 연결)
+-- substr(자를 문자열, 시작 인덱스) -> 문자열 끝까지
 -- 인덱스 1부터 시작
 SELECT
     'abcdef' AS ex,
@@ -97,7 +98,7 @@ EMPLOYEES 테이블에서 phone_number컬럼은 ###.###.####형태로 저장되어 있다
 SELECT phone_number FROM employees;
 
 SELECT
-    CONCAT('(02)', SUBSTR(phone_number,4,length(phone_number)-3))
+    CONCAT('(02)', SUBSTR(phone_number,4))
 
 FROM employees;
 
@@ -117,5 +118,12 @@ SELECT
 FROM employees
 WHERE LOWER(job_id) = 'it_prog';
 
+/*
+SELECT
+    first_name, 
+    salary
+FROM employees
+WHERE LOWER(job_id) = 'it_prog';
+*/
 
 
