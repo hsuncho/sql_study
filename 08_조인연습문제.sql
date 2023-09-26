@@ -8,30 +8,55 @@
 SELECT
     *
 FROM employees e
-INNER JOIN departments d
-ON e.department_id = d.department_id; 
-//106
+JOIN departments d
+ON e.department_id = d.department_id;
 
 SELECT
     *
 FROM employees e
 LEFT JOIN departments d
 ON e.department_id = d.department_id;
-//107
 
 SELECT
     *
 FROM employees e
 RIGHT JOIN departments d
 ON e.department_id = d.department_id;
-//122
+
+SELECT
+    *
+FROM employees e
+FULL JOIN departments d
+ON e.department_id = d.department_id;
+
+----------------------------------------------------
+SELECT
+    *
+FROM employees e
+INNER JOIN departments d
+ON e.department_id = d.department_id; 
+--106
+
+SELECT
+    *
+FROM employees e
+LEFT JOIN departments d
+ON e.department_id = d.department_id;
+--107
+
+SELECT
+    *
+FROM employees e
+RIGHT JOIN departments d
+ON e.department_id = d.department_id;
+--122
 
 SELECT
     *
 FROM employees e
 FULL JOIN departments d
 ON e.department_id = d.department_id; 
-//123
+--123
 
 /*
 ¹®Á¦ 2.
