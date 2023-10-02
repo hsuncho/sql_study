@@ -194,6 +194,22 @@ SELECT * FROM (
             )
 WHERE rn>0 AND rn <=10;
 
+-------------------------- 풀이 --------------------------
+SELECT * FROM
+    (
+    SELECT ROWNUM AS rn, a.*
+        FROM   
+        (
+        SELECT
+            e.employee_id, e.first_name, e.phone_number,
+            e.hire_date, d.department_id, d.department_name
+        FROM employees e LEFT JOIN departments d
+        ON e.department_id = d.department_id
+        ORDER BY hire_date ASC
+        ) a
+    )
+WHERE rn>0 AND rn <=10;
+
 /*
 문제 13. 
 --EMPLOYEES 와 DEPARTMENTS 테이블에서 JOB_ID가 SA_MAN 사원의 정보의 LAST_NAME, JOB_ID, 
@@ -204,9 +220,22 @@ SELECT
     e.last_name, e.job_id,
     d.department_id, d.department_name
 FROM employees e
-LEFT JOIN departments d
+JOIN departments d
 ON e.department_id = d.department_id
 WHERE job_id = 'SA_MAN';
+
+-------------------------- 풀이 --------------------------
+SELECT 
+    tbl.*, d.department_name
+FROM
+    (
+    SELECT
+        last_name, job_id, department_id
+    FROM employees e
+    WHERE job_id = 'SA_MAN'
+    ) tbl
+JOIN departments d
+ON tbl.department_id = d.department_id;
 
 /*
 문제 14
@@ -218,13 +247,48 @@ WHERE job_id = 'SA_MAN';
 SELECT
     d.department_id, d.department_name, d.manager_id,
     (SELECT COUNT(*) FROM employees e
-    WHERE d.department_id = e.department_id
-    GROUP BY department_id) AS 사원수
+     WHERE e.department_id = d.department_id
+    ) AS total
 FROM departments d
 WHERE (SELECT COUNT(*) FROM employees e
-    WHERE d.department_id = e.department_id
-    GROUP BY department_id) IS NOT NULL
-ORDER BY 사원수 DESC;
+     WHERE e.department_id = d.department_id
+    ) > 0
+ORDER BY total DESC;
+
+SELECT
+    d.department_id, d.department_name, d.manager_id,
+    COUNT(*) AS 사원수
+FROM employees e
+JOIN departments d
+ON e.department_id = d.department_id
+GROUP BY d.department_id, d.department_name, d.manager_id
+HAVING COUNT(*) IS NOT NULL;
+
+-------------------------- 풀이 --------------------------
+SELECT
+    d.department_id, d.department_name, d.manager_id, a.total
+FROM departments d
+JOIN -- 이너 조인: 사원이 들어있는 부서만 조회
+    (
+    SELECT
+        department_id, COUNT(*) AS total
+    FROM employees
+    GROUP BY department_id
+    ) a -- 서브쿼리는 LEFT JOIN 한 결과와 동일; 한 행마다 출력되므로 group by를 진행할 필요 없음
+ON d.department_id = a.department_id
+ORDER BY a.total DESC;
+
+SELECT
+    d.department_id, d.department_name, d.manager_id,
+    (
+        SELECT
+            COUNT(*)
+        FROM employees e
+        WHERE e.department_id = d.department_id
+    ) AS total
+FROM departments d
+WHERE manager_id IS NOT NULL
+ORDER BY total DESC;
 
 /*
 문제 15
@@ -240,6 +304,37 @@ SELECT
     WHERE e.department_id = d.department_id) AS average_salary
 FROM departments d
 LEFT JOIN locations loc
+ON d.location_id = loc.location_id;
+
+-------------------------- 풀이 --------------------------
+
+SELECT
+    d.*,
+    loc.street_address, loc.postal_code,
+    NVL(tbl.result,0) AS 부서별평균급여
+FROM departments d
+JOIN locations loc
+ON d.location_id = loc.location_id
+LEFT JOIN -- 부서별 평균 연봉이 없다면(사람이 없으면) 조회되지 않으나 0으로 출력해야 함(department는 다 나와야함)
+    (
+    SELECT
+        department_id,
+        TRUNC(AVG(salary),0) AS result
+    FROM employees
+    GROUP BY department_id
+    ) tbl
+ON d.department_id = tbl.department_id;
+
+SELECT
+    d.*, loc.street_address,loc.postal_code,
+    NVL((
+        SELECT TRUNC(AVG(salary),0)
+        FROM employees e
+        WHERE e.department_id = d.department_id
+    )
+    ,0) AS 부서별평균급여
+FROM departments d
+JOIN locations loc
 ON d.location_id = loc.location_id;
 
 
@@ -265,16 +360,29 @@ ORDER BY department_id DESC
 )
 WHERE rn >0 AND rn <=10;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+-------------------------- 풀이 --------------------------
+SELECT * FROM
+    (
+    SELECT ROWNUM as rn, tbl2.*
+        FROM
+        (
+        SELECT
+            d.*,
+            loc.street_address, loc.postal_code,
+            NVL(tbl.result,0) AS 부서별평균급여
+        FROM departments d
+        JOIN locations loc
+        ON d.location_id = loc.location_id
+        LEFT JOIN -- 부서별 평균 연봉이 없다면(사람이 없으면) 조회되지 않으나 0으로 출력해야 함(department는 다 나와야함)
+            (
+            SELECT
+                department_id,
+                TRUNC(AVG(salary),0) AS result
+            FROM employees
+            GROUP BY department_id
+            ) tbl
+        ON d.department_id = tbl.department_id
+        ORDER BY d.department_id DESC
+        ) tbl2
+    )
+WHERE rn > 0 AND rn <= 10;
