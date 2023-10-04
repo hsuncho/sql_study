@@ -18,9 +18,17 @@ CREATE TABLE dept2(
     dept_date DATE
 );
 
+SELECT * FROM dept2;
+DROP SEQUENCE dept2_seq;
+
+
+
 -- 시퀀스 사용하기(NEXTVAL, CURRVAL)
 INSERT INTO dept2
-VALUES(dept2_seq.NEXTVAL,'test', 'test', sysdate);
+VALUES(dept2_seq.CURRVAL,'test', 'test', sysdate);
+
+INSERT INTO dept2
+VALUES(dept2_seq.CURRVAL,'test2', 'test', sysdate);
 
 SELECT * FROM dept2;
 
