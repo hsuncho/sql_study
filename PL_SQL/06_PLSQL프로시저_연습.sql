@@ -167,11 +167,12 @@ CREATE OR REPLACE PROCEDURE new_emp_proc
 IS
 BEGIN
     
-    MERGE INTO emps e
+    MERGE INTO emps e -- 머지를 할 타겟 테이블
         USING
             (SELECT p_employee_id AS employee_id FROM dual) d -- 단일 테이블 MERGE문에서 데이터 존재 유무를 파악하기 위해 dual에다 단순 값만 만들어 놓고 ON 절에서 비교.
         ON
             (e.employee_id = d.employee_id) -- p_employee_id로 전달받은 사번이 emps에 존재하는지를 알기 위해서 dummy로 만든 조회 결과.
+                                            -- 전달받능 사번이 emps에 존재하는지를 병합 조건으로 물어봄
     WHEN MATCHED THEN
         UPDATE SET
             e.last_name = p_last_name,
@@ -190,7 +191,4 @@ SELECT 120 AS employee_id FROM dual;
 EXEC new_emp_proc (400, 'test','test',sysdate,'test');
 
 SELECT * FROM emps;
-
-
-
 
